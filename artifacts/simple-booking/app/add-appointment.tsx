@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { router, useLocalSearchParams } from "expo-router";
+import { router } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -41,14 +41,9 @@ function todayStr() {
 export default function AddAppointmentScreen() {
   const C = Colors.light;
   const insets = useSafeAreaInsets();
-  const params = useLocalSearchParams<{ customerId?: string }>();
-  const { customers, addAppointment } = useData();
+  const { addAppointment } = useData();
 
-  const preselected = customers.find((c) => c.id === params.customerId);
-
-  const [selectedCustomerId, setSelectedCustomerId] = useState(preselected?.id ?? "");
-  const [selectedCustomerName, setSelectedCustomerName] = useState(preselected?.name ?? "");
-  const [showCustomerPicker, setShowCustomerPicker] = useState(false);
+  const [customerName, setCustomerName] = useState("");
   const [date, setDate] = useState(todayStr());
   const [time, setTime] = useState("10:00");
   const [service, setService] = useState(SERVICES[0]);
@@ -60,11 +55,15 @@ export default function AddAppointmentScreen() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const dateRef = useRef<TextInput>(null);
+  const timeRef = useRef<TextInput>(null);
+  const priceRef = useRef<TextInput>(null);
+  const durationRef = useRef<TextInput>(null);
   const noteRef = useRef<TextInput>(null);
 
   const validate = () => {
     const errs: Record<string, string> = {};
-    if (!selectedCustomerId) errs.customer = "Müşteri seçiniz.";
+    if (!customerName.trim()) errs.customerName = "Müşteri adını giriniz.";
     if (!date.match(/^\d{4}-\d{2}-\d{2}$/)) errs.date = "Geçerli bir tarih giriniz (YYYY-AA-GG).";
     if (!time.match(/^\d{1,2}:\d{2}$/)) errs.time = "Geçerli bir saat giriniz (SS:DD).";
     setErrors(errs);
@@ -76,8 +75,8 @@ export default function AddAppointmentScreen() {
     setLoading(true);
     try {
       await addAppointment({
-        customerId: selectedCustomerId,
-        customerName: selectedCustomerName,
+        customerId: "",
+        customerName: customerName.trim(),
         date,
         time,
         service,
@@ -98,6 +97,9 @@ export default function AddAppointmentScreen() {
     tamamlandı: { bg: C.successLight, text: C.success },
     iptal: { bg: C.dangerLight, text: C.danger },
   };
+
+  const clearErr = (field: string) =>
+    setErrors((e) => { const n = { ...e }; delete n[field]; return n; });
 
   return (
     <View style={[styles.root, { backgroundColor: C.background }]}>
@@ -127,63 +129,28 @@ export default function AddAppointmentScreen() {
         bottomOffset={20}
       >
         <View style={styles.fieldGroup}>
-          <Text style={[styles.label, { color: C.textSecondary }]}>Müşteri *</Text>
-          <TouchableOpacity
+          <Text style={[styles.label, { color: C.textSecondary }]}>Müşteri Adı *</Text>
+          <View
             style={[
-              styles.pickerBtn,
-              {
-                backgroundColor: C.surface,
-                borderColor: errors.customer ? C.danger : C.border,
-              },
+              styles.inputRow,
+              { backgroundColor: C.surface, borderColor: errors.customerName ? C.danger : C.border },
             ]}
-            onPress={() => setShowCustomerPicker((s) => !s)}
           >
-            <Feather name="user" size={18} color={C.textMuted} />
-            <Text
-              style={[
-                styles.pickerText,
-                { color: selectedCustomerName ? C.text : C.textMuted },
-              ]}
-            >
-              {selectedCustomerName || "Müşteri seçin..."}
-            </Text>
-            <Feather name={showCustomerPicker ? "chevron-up" : "chevron-down"} size={18} color={C.textMuted} />
-          </TouchableOpacity>
-          {errors.customer ? (
-            <Text style={[styles.fieldError, { color: C.danger }]}>{errors.customer}</Text>
+            <Feather name="user" size={18} color={C.textMuted} style={styles.inputIcon} />
+            <TextInput
+              style={[styles.input, { color: C.text }]}
+              placeholder="Müşteri adını yazın"
+              placeholderTextColor={C.textMuted}
+              value={customerName}
+              onChangeText={(t) => { setCustomerName(t); clearErr("customerName"); }}
+              autoCapitalize="words"
+              returnKeyType="next"
+              onSubmitEditing={() => dateRef.current?.focus()}
+            />
+          </View>
+          {errors.customerName ? (
+            <Text style={[styles.fieldError, { color: C.danger }]}>{errors.customerName}</Text>
           ) : null}
-          {showCustomerPicker && (
-            <View style={[styles.dropdown, { backgroundColor: C.surface, borderColor: C.border }]}>
-              {customers.length === 0 ? (
-                <Text style={[styles.dropdownEmpty, { color: C.textMuted }]}>Henüz müşteri yok</Text>
-              ) : (
-                <ScrollView style={{ maxHeight: 200 }} nestedScrollEnabled>
-                  {customers.map((c) => (
-                    <TouchableOpacity
-                      key={c.id}
-                      style={[
-                        styles.dropdownItem,
-                        selectedCustomerId === c.id && { backgroundColor: C.primaryLight },
-                      ]}
-                      onPress={() => {
-                        setSelectedCustomerId(c.id);
-                        setSelectedCustomerName(c.name);
-                        setShowCustomerPicker(false);
-                        setErrors((e) => { const n = { ...e }; delete n.customer; return n; });
-                      }}
-                    >
-                      <Text style={[styles.dropdownItemText, { color: selectedCustomerId === c.id ? C.primary : C.text }]}>
-                        {c.name}
-                      </Text>
-                      {c.phone ? (
-                        <Text style={[styles.dropdownItemSub, { color: C.textMuted }]}>{c.phone}</Text>
-                      ) : null}
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              )}
-            </View>
-          )}
         </View>
 
         <View style={styles.row2}>
@@ -197,15 +164,14 @@ export default function AddAppointmentScreen() {
             >
               <Feather name="calendar" size={16} color={C.textMuted} style={styles.inputIcon} />
               <TextInput
+                ref={dateRef}
                 style={[styles.input, { color: C.text }]}
                 placeholder="2024-03-28"
                 placeholderTextColor={C.textMuted}
                 value={date}
-                onChangeText={(t) => {
-                  setDate(t);
-                  if (errors.date) setErrors((e) => { const n = { ...e }; delete n.date; return n; });
-                }}
+                onChangeText={(t) => { setDate(t); clearErr("date"); }}
                 returnKeyType="next"
+                onSubmitEditing={() => timeRef.current?.focus()}
               />
             </View>
             {errors.date ? <Text style={[styles.fieldError, { color: C.danger }]}>{errors.date}</Text> : null}
@@ -221,16 +187,15 @@ export default function AddAppointmentScreen() {
             >
               <Feather name="clock" size={16} color={C.textMuted} style={styles.inputIcon} />
               <TextInput
+                ref={timeRef}
                 style={[styles.input, { color: C.text }]}
                 placeholder="10:30"
                 placeholderTextColor={C.textMuted}
                 value={time}
-                onChangeText={(t) => {
-                  setTime(t);
-                  if (errors.time) setErrors((e) => { const n = { ...e }; delete n.time; return n; });
-                }}
+                onChangeText={(t) => { setTime(t); clearErr("time"); }}
                 keyboardType="numbers-and-punctuation"
                 returnKeyType="next"
+                onSubmitEditing={() => priceRef.current?.focus()}
               />
             </View>
             {errors.time ? <Text style={[styles.fieldError, { color: C.danger }]}>{errors.time}</Text> : null}
@@ -276,6 +241,7 @@ export default function AddAppointmentScreen() {
             <View style={[styles.inputRow, { backgroundColor: C.surface, borderColor: C.border }]}>
               <Feather name="tag" size={16} color={C.textMuted} style={styles.inputIcon} />
               <TextInput
+                ref={priceRef}
                 style={[styles.input, { color: C.text }]}
                 placeholder="0"
                 placeholderTextColor={C.textMuted}
@@ -283,6 +249,7 @@ export default function AddAppointmentScreen() {
                 onChangeText={setPrice}
                 keyboardType="numeric"
                 returnKeyType="next"
+                onSubmitEditing={() => durationRef.current?.focus()}
               />
             </View>
           </View>
@@ -292,6 +259,7 @@ export default function AddAppointmentScreen() {
             <View style={[styles.inputRow, { backgroundColor: C.surface, borderColor: C.border }]}>
               <Feather name="clock" size={16} color={C.textMuted} style={styles.inputIcon} />
               <TextInput
+                ref={durationRef}
                 style={[styles.input, { color: C.text }]}
                 placeholder="60"
                 placeholderTextColor={C.textMuted}
@@ -404,10 +372,8 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     marginTop: 4,
   },
-  dropdownEmpty: { padding: 16, textAlign: "center", fontSize: 14, fontFamily: "Inter_400Regular" },
   dropdownItem: { paddingHorizontal: 16, paddingVertical: 12 },
   dropdownItemText: { fontSize: 15, fontFamily: "Inter_500Medium" },
-  dropdownItemSub: { fontSize: 12, fontFamily: "Inter_400Regular", marginTop: 2 },
   statusRow: { flexDirection: "row", gap: 8 },
   statusBtn: {
     flex: 1,
