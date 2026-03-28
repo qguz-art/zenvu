@@ -121,30 +121,17 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        <View style={styles.quickActions}>
-          <TouchableOpacity
-            style={[styles.quickBtn, { backgroundColor: C.primary }]}
-            onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              router.push("/add-appointment");
-            }}
-            activeOpacity={0.85}
-          >
-            <Feather name="plus-circle" size={22} color="#fff" />
-            <Text style={styles.quickBtnText}>Randevu Ekle</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.quickBtn, { backgroundColor: C.surface, borderWidth: 1, borderColor: C.border }]}
-            onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              router.push("/add-customer");
-            }}
-            activeOpacity={0.85}
-          >
-            <Feather name="user-plus" size={22} color={C.primary} />
-            <Text style={[styles.quickBtnText, { color: C.primary }]}>Müşteri Ekle</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity
+          style={[styles.quickBtn, { backgroundColor: C.primary, marginBottom: 24 }]}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            router.push("/add-appointment");
+          }}
+          activeOpacity={0.85}
+        >
+          <Feather name="plus-circle" size={22} color="#fff" />
+          <Text style={styles.quickBtnText}>Randevu Ekle</Text>
+        </TouchableOpacity>
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -199,9 +186,7 @@ const styles = StyleSheet.create({
   countBadge: { alignItems: "center", backgroundColor: "rgba(255,255,255,0.2)", borderRadius: 10, paddingHorizontal: 12, paddingVertical: 6 },
   countText: { color: "#fff", fontSize: 22, fontFamily: "Inter_700Bold", lineHeight: 26 },
   countSub: { color: "rgba(255,255,255,0.8)", fontSize: 11, fontFamily: "Inter_400Regular" },
-  quickActions: { flexDirection: "row", gap: 12, marginBottom: 24 },
   quickBtn: {
-    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
