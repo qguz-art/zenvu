@@ -1,0 +1,92 @@
+🏷️ Uygulama: SimpleBooking (Örnek İsim)
+
+Amaç: Küçük işletmelerin (kuaför, berber, diyetisyen, masaj salonu vb.) randevu ve müşteri yönetimini kolaylaştırmak.
+
+Kullanıcı kitlesi: Küçük işletme sahipleri, bireysel girişimciler.
+
+Gelir modeli: Freemium + Reklam
+
+⸻
+
+1️⃣ Temel Özellikler (MVP)
+
+A. Müşteri Yönetimi
+	•	Müşteri Ekleme: Ad, telefon, not
+	•	Müşteri Listesi: Eklenen tüm müşterileri görme
+	•	Seçim: Randevu eklemek için müşteri seçebilme
+
+B. Randevu Yönetimi
+	•	Randevu Ekleme: Müşteri seç, tarih ve saat belirle
+	•	Takvim Görünümü: Günlük ve haftalık randevuların listelenmesi
+	•	Randevu Düzenleme / Silme: Tıklama veya sürükle ile
+
+C. Bildirim / Hatırlatma (Opsiyonel)
+	•	Push notification veya SMS hatırlatma ile randevu kaçmasını önleme
+
+⸻
+
+2️⃣ Kullanıcı Arayüzü (UI) Akışı
+	1.	Ana Ekran
+	•	Bugünün randevuları
+	•	“Müşteri Ekle” ve “Randevu Ekle” butonları
+	•	Reklam bannerı (ücretsiz kullanıcı için)
+	2.	Müşteri Ekleme Ekranı
+	•	Ad, telefon, not girişi
+	•	Kaydet → Müşteri listesine eklenir
+	3.	Müşteri Listesi
+	•	Tüm müşteriler listelenir
+	•	Seçim → Randevu ekleme ekranına yönlendirir
+	4.	Randevu Ekleme Ekranı
+	•	Müşteri seçilir
+	•	Tarih ve saat seçilir
+	•	Kaydet → Takvimde gösterilir
+	5.	Takvim / Randevu Listesi
+	•	Günlük / haftalık görünüm
+	•	Randevuya tıklayarak düzenleme veya silme
+
+⸻
+
+3️⃣ Freemium ve Reklam Modeli
+
+Freemium Kullanıcı
+	•	Sınırsız müşteri ve randevu
+	•	Reklam gösterimi:
+	•	Banner reklam: ana ekranda
+	•	Opsiyonel kısa video reklam: randevu veya müşteri ekledikten sonra
+	•	Premium’a geçme teşviki: “Reklamsız deneyim için Premium ol”
+
+Premium Kullanıcı
+	•	Reklamsız deneyim
+	•	Opsiyonel gelişmiş özellikler:
+	•	Raporlar: toplam randevu, toplam gelir
+	•	SMS hatırlatma
+	•	Çoklu çalışan yönetimi
+	•	Tek seferlik veya abonelik ücreti
+
+⸻
+
+4️⃣ Gelişmiş / Opsiyonel Özellikler
+	•	Çoklu Çalışan Yönetimi: Hangi çalışanın hangi randevusu
+	•	Raporlar: Günlük, haftalık, aylık randevu ve gelir raporu
+	•	Tema Seçenekleri: Premium kullanıcı için farklı renk temaları
+	•	Export: Excel / PDF olarak randevu ve müşteri listesi dışa aktarma
+
+⸻
+
+5️⃣ Gelir Stratejisi
+	1.	Reklam Geliri: Ücretsiz kullanıcılar üzerinden
+	2.	Premium Geliri: Opsiyonel reklam kaldırma ve gelişmiş özellikler
+	3.	B2B / Paket Satışı: 5–10 çalışanlı işletmeler için özel paket
+
+💡 Avantaj: Kullanıcılar sınırsız kullanıyor → hızlı büyüme + sürekli reklam geliri
+
+⸻
+
+6️⃣ Kullanıcı Akışı (Örnek Günlük)
+	1.	Uygulamayı aç → Ana ekran
+	2.	Yeni müşteri ekle → Ad, telefon, not
+	3.	Randevu ekle → Müşteri seç, tarih ve saat belirle
+	4.	Ana ekranda bugünün randevularını gör
+	5.	Randevu zamanı → bildirim veya hatırlatma
+	6.	Ücretsiz kullanıcı → banner reklam ve opsiyonel video reklam
+	7.	Premium kullanıcı → reklam yok, gelişmiş rapor ve SMS hatırlatma
