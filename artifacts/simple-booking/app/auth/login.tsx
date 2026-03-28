@@ -4,7 +4,6 @@ import { router } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Platform,
   StyleSheet,
   Text,
@@ -22,17 +21,18 @@ export default function LoginScreen() {
   const { login } = useAuth();
   const insets = useSafeAreaInsets();
 
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<{ username?: string; password?: string; general?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({});
 
   const passwordRef = useRef<TextInput>(null);
 
   const validate = () => {
     const errs: typeof errors = {};
-    if (!username.trim()) errs.username = "Kullanıcı adını giriniz.";
+    if (!email.trim()) errs.email = "E-posta adresinizi giriniz.";
+    else if (!email.includes("@")) errs.email = "Geçerli bir e-posta giriniz.";
     if (!password) errs.password = "Şifrenizi giriniz.";
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -43,7 +43,7 @@ export default function LoginScreen() {
     setLoading(true);
     setErrors({});
     try {
-      const result = await login(username, password);
+      const result = await login(email, password);
       if (result.success) {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         router.replace("/(tabs)");
@@ -70,7 +70,6 @@ export default function LoginScreen() {
         ]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
-        bottomOffset={20}
       >
         <View style={styles.header}>
           <View style={[styles.logoBox, { backgroundColor: C.primaryLight }]}>
@@ -93,34 +92,35 @@ export default function LoginScreen() {
 
         <View style={styles.form}>
           <View style={styles.fieldGroup}>
-            <Text style={[styles.label, { color: C.textSecondary }]}>Kullanıcı Adı</Text>
+            <Text style={[styles.label, { color: C.textSecondary }]}>E-posta</Text>
             <View
               style={[
                 styles.inputRow,
                 {
                   backgroundColor: C.surface,
-                  borderColor: errors.username ? C.danger : C.border,
+                  borderColor: errors.email ? C.danger : C.border,
                 },
               ]}
             >
-              <Feather name="user" size={18} color={C.textMuted} style={styles.inputIcon} />
+              <Feather name="mail" size={18} color={C.textMuted} style={styles.inputIcon} />
               <TextInput
                 style={[styles.input, { color: C.text }]}
-                placeholder="kullanici_adi"
+                placeholder="ornek@mail.com"
                 placeholderTextColor={C.textMuted}
-                value={username}
+                value={email}
                 onChangeText={(t) => {
-                  setUsername(t);
-                  if (errors.username) setErrors((e) => ({ ...e, username: undefined }));
+                  setEmail(t);
+                  if (errors.email) setErrors((e) => ({ ...e, email: undefined }));
                 }}
                 autoCapitalize="none"
                 autoCorrect={false}
+                keyboardType="email-address"
                 returnKeyType="next"
                 onSubmitEditing={() => passwordRef.current?.focus()}
               />
             </View>
-            {errors.username ? (
-              <Text style={[styles.fieldError, { color: C.danger }]}>{errors.username}</Text>
+            {errors.email ? (
+              <Text style={[styles.fieldError, { color: C.danger }]}>{errors.email}</Text>
             ) : null}
           </View>
 

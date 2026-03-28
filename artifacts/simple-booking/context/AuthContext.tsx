@@ -17,7 +17,7 @@ interface StoredUser extends User {
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (username: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (params: { username: string; email: string; displayName: string; password: string }) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
 }
@@ -79,18 +79,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  async function login(username: string, password: string): Promise<{ success: boolean; error?: string }> {
-    if (!username.trim() || !password.trim()) {
-      return { success: false, error: "Kullanıcı adı ve şifre giriniz." };
+  async function login(email: string, password: string): Promise<{ success: boolean; error?: string }> {
+    if (!email.trim() || !password.trim()) {
+      return { success: false, error: "E-posta ve şifre giriniz." };
     }
 
     const users = await getStoredUsers();
     const found = users.find(
-      (u) => u.username.toLowerCase() === username.toLowerCase().trim()
+      (u) => u.email.toLowerCase() === email.toLowerCase().trim()
     );
 
     if (!found) {
-      return { success: false, error: "Bu kullanıcı adına kayıtlı hesap bulunamadı." };
+      return { success: false, error: "Bu e-posta adresine kayıtlı hesap bulunamadı." };
     }
 
     const hash = simpleHash(password);

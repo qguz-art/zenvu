@@ -78,8 +78,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         AsyncStorage.getItem(getCustomersKey(user.id)),
         AsyncStorage.getItem(getAppointmentsKey(user.id)),
       ]);
-      setCustomers(cData ? JSON.parse(cData) : []);
-      setAppointments(aData ? JSON.parse(aData) : []);
+      try { setCustomers(cData ? JSON.parse(cData) : []); } catch { setCustomers([]); }
+      try { setAppointments(aData ? JSON.parse(aData) : []); } catch { setAppointments([]); }
+    } catch (e) {
+      console.warn("Veriler yüklenemedi:", e);
     } finally {
       setIsLoading(false);
     }
@@ -91,14 +93,24 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   async function saveCustomers(newList: Customer[]) {
     if (!user) return;
-    await AsyncStorage.setItem(getCustomersKey(user.id), JSON.stringify(newList));
-    setCustomers(newList);
+    try {
+      await AsyncStorage.setItem(getCustomersKey(user.id), JSON.stringify(newList));
+      setCustomers(newList);
+    } catch (e) {
+      console.warn("Müşteri kaydedilemedi:", e);
+      throw e;
+    }
   }
 
   async function saveAppointments(newList: Appointment[]) {
     if (!user) return;
-    await AsyncStorage.setItem(getAppointmentsKey(user.id), JSON.stringify(newList));
-    setAppointments(newList);
+    try {
+      await AsyncStorage.setItem(getAppointmentsKey(user.id), JSON.stringify(newList));
+      setAppointments(newList);
+    } catch (e) {
+      console.warn("Randevu kaydedilemedi:", e);
+      throw e;
+    }
   }
 
   async function addCustomer(data: Omit<Customer, "id" | "userId" | "createdAt">): Promise<Customer> {
