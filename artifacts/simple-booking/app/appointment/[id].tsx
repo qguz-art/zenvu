@@ -110,6 +110,7 @@ export default function AppointmentDetailScreen() {
 
         <View style={styles.infoSection}>
           {[
+            ...(appt.customerPhone ? [{ icon: "phone" as const, label: "Telefon", value: appt.customerPhone }] : []),
             { icon: "scissors" as const, label: "Hizmet", value: appt.service || "—" },
             { icon: "clock" as const, label: "Süre", value: `${appt.duration} dakika` },
             { icon: "tag" as const, label: "Ücret", value: appt.price > 0 ? `${appt.price.toLocaleString("tr-TR")} ₺` : "Belirtilmedi" },

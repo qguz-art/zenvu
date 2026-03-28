@@ -44,6 +44,7 @@ export default function AddAppointmentScreen() {
   const { addAppointment } = useData();
 
   const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
   const [date, setDate] = useState(todayStr());
   const [time, setTime] = useState("10:00");
   const [service, setService] = useState(SERVICES[0]);
@@ -55,6 +56,7 @@ export default function AddAppointmentScreen() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const phoneRef = useRef<TextInput>(null);
   const dateRef = useRef<TextInput>(null);
   const timeRef = useRef<TextInput>(null);
   const priceRef = useRef<TextInput>(null);
@@ -77,6 +79,7 @@ export default function AddAppointmentScreen() {
       await addAppointment({
         customerId: "",
         customerName: customerName.trim(),
+        customerPhone: customerPhone.trim(),
         date,
         time,
         service,
@@ -145,12 +148,30 @@ export default function AddAppointmentScreen() {
               onChangeText={(t) => { setCustomerName(t); clearErr("customerName"); }}
               autoCapitalize="words"
               returnKeyType="next"
-              onSubmitEditing={() => dateRef.current?.focus()}
+              onSubmitEditing={() => phoneRef.current?.focus()}
             />
           </View>
           {errors.customerName ? (
             <Text style={[styles.fieldError, { color: C.danger }]}>{errors.customerName}</Text>
           ) : null}
+        </View>
+
+        <View style={styles.fieldGroup}>
+          <Text style={[styles.label, { color: C.textSecondary }]}>Telefon Numarası</Text>
+          <View style={[styles.inputRow, { backgroundColor: C.surface, borderColor: C.border }]}>
+            <Feather name="phone" size={18} color={C.textMuted} style={styles.inputIcon} />
+            <TextInput
+              ref={phoneRef}
+              style={[styles.input, { color: C.text }]}
+              placeholder="05xx xxx xx xx"
+              placeholderTextColor={C.textMuted}
+              value={customerPhone}
+              onChangeText={setCustomerPhone}
+              keyboardType="phone-pad"
+              returnKeyType="next"
+              onSubmitEditing={() => dateRef.current?.focus()}
+            />
+          </View>
         </View>
 
         <View style={styles.row2}>
