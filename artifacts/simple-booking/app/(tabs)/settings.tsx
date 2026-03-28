@@ -48,11 +48,33 @@ function SettingRow({
   );
 }
 
+function formatCurrency(amount: number): string {
+  return amount.toLocaleString("tr-TR", { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + " ₺";
+}
+
+function todayStr(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function thisMonthPrefix(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
 export default function SettingsScreen() {
   const C = Colors.light;
   const insets = useSafeAreaInsets();
   const { user, logout } = useAuth();
   const { customers, appointments } = useData();
+
+  const activeAppts = appointments.filter((a) => a.status !== "iptal" && a.price > 0);
+  const dailyIncome = activeAppts
+    .filter((a) => a.date === todayStr())
+    .reduce((sum, a) => sum + a.price, 0);
+  const monthlyIncome = activeAppts
+    .filter((a) => a.date.startsWith(thisMonthPrefix()))
+    .reduce((sum, a) => sum + a.price, 0);
 
   const handleLogout = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -112,6 +134,24 @@ export default function SettingsScreen() {
               <Text style={[styles.statLabel, { color: C.textSecondary }]}>{s.label}</Text>
             </View>
           ))}
+        </View>
+
+        <Text style={[styles.sectionLabel, { color: C.textMuted }]}>GELİR</Text>
+        <View style={[styles.incomeRow, { marginBottom: 24 }]}>
+          <View style={[styles.incomeBox, { backgroundColor: C.surface }]}>
+            <View style={[styles.incomeIconWrap, { backgroundColor: C.primaryLight }]}>
+              <Feather name="sun" size={16} color={C.primary} />
+            </View>
+            <Text style={[styles.incomeLabel, { color: C.textSecondary }]}>Günlük Gelir</Text>
+            <Text style={[styles.incomeAmount, { color: C.primary }]}>{formatCurrency(dailyIncome)}</Text>
+          </View>
+          <View style={[styles.incomeBox, { backgroundColor: C.surface }]}>
+            <View style={[styles.incomeIconWrap, { backgroundColor: C.successLight }]}>
+              <Feather name="trending-up" size={16} color={C.success} />
+            </View>
+            <Text style={[styles.incomeLabel, { color: C.textSecondary }]}>Aylık Gelir</Text>
+            <Text style={[styles.incomeAmount, { color: C.success }]}>{formatCurrency(monthlyIncome)}</Text>
+          </View>
         </View>
 
         <Text style={[styles.sectionLabel, { color: C.textMuted }]}>HESAP</Text>
@@ -186,4 +226,9 @@ const styles = StyleSheet.create({
   rowIcon: { width: 34, height: 34, borderRadius: 10, alignItems: "center", justifyContent: "center" },
   rowLabel: { fontSize: 15, fontFamily: "Inter_400Regular" },
   rowValue: { fontSize: 14, fontFamily: "Inter_400Regular", marginRight: 6 },
+  incomeRow: { flexDirection: "row", gap: 10 },
+  incomeBox: { flex: 1, borderRadius: 14, padding: 16, alignItems: "flex-start", gap: 6 },
+  incomeIconWrap: { width: 32, height: 32, borderRadius: 10, alignItems: "center", justifyContent: "center", marginBottom: 2 },
+  incomeLabel: { fontSize: 12, fontFamily: "Inter_400Regular" },
+  incomeAmount: { fontSize: 20, fontFamily: "Inter_700Bold" },
 });
