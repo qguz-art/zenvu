@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
+import { scheduleAppointmentNotification, cancelAppointmentNotification } from "@/utils/notifications";
 
 export interface Customer {
   id: string;
@@ -25,6 +26,7 @@ export interface Appointment {
   note: string;
   status: "beklemede" | "tamamlandı" | "iptal";
   createdAt: string;
+  notificationId?: string;
 }
 
 interface DataContextType {
@@ -136,11 +138,19 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function addAppointment(data: Omit<Appointment, "id" | "userId" | "createdAt">): Promise<Appointment> {
+    const id = generateId();
+    const notificationId = await scheduleAppointmentNotification(
+      id,
+      data.customerName,
+      data.date,
+      data.time
+    );
     const a: Appointment = {
       ...data,
-      id: generateId(),
+      id,
       userId: user!.id,
       createdAt: new Date().toISOString(),
+      ...(notificationId ? { notificationId } : {}),
     };
     await saveAppointments([...appointments, a]);
     return a;
