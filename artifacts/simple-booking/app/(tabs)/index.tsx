@@ -256,7 +256,7 @@ export default function DailyScreen() {
         style={[styles.fab, { backgroundColor: C.primary, bottom: Platform.OS === "web" ? 100 : insets.bottom + 84 + 16 }]}
         onPress={() => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-          router.push("/add-appointment");
+          router.push(`/add-appointment?date=${ds}`);
         }}
         activeOpacity={0.85}
       >

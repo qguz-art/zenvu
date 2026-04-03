@@ -16,10 +16,6 @@ function NativeTabLayout() {
         <Icon sf={{ default: "house", selected: "house.fill" }} />
         <Label>Ana Sayfa</Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="customers">
-        <Icon sf={{ default: "person.2", selected: "person.2.fill" }} />
-        <Label>Müşteriler</Label>
-      </NativeTabs.Trigger>
       <NativeTabs.Trigger name="calendar">
         <Icon sf={{ default: "calendar", selected: "calendar.fill" }} />
         <Label>Takvim</Label>
@@ -79,15 +75,7 @@ function ClassicTabLayout() {
       />
       <Tabs.Screen
         name="customers"
-        options={{
-          title: "Müşteriler",
-          tabBarIcon: ({ color }) =>
-            isIOS ? (
-              <SymbolView name="person.2" tintColor={color} size={24} />
-            ) : (
-              <Feather name="users" size={22} color={color} />
-            ),
-        }}
+        options={{ href: null }}
       />
       <Tabs.Screen
         name="calendar"

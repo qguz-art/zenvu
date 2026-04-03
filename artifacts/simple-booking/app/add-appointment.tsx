@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -38,14 +38,25 @@ function todayStr() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
+function normalizeTime(raw: string): string {
+  return raw.replace(/[.,\-\s]/g, ":");
+}
+
+function isValidTime(t: string): boolean {
+  return /^\d{1,2}[:.,-]\d{2}$/.test(t) || /^\d{1,2}:\d{2}$/.test(t);
+}
+
 export default function AddAppointmentScreen() {
   const C = Colors.light;
   const insets = useSafeAreaInsets();
   const { addAppointment } = useData();
+  const params = useLocalSearchParams<{ date?: string }>();
+
+  const initialDate = params.date && params.date.match(/^\d{4}-\d{2}-\d{2}$/) ? params.date : todayStr();
 
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
-  const [date, setDate] = useState(todayStr());
+  const [date, setDate] = useState(initialDate);
   const [time, setTime] = useState("10:00");
   const [service, setService] = useState(SERVICES[0]);
   const [showServicePicker, setShowServicePicker] = useState(false);
@@ -67,7 +78,7 @@ export default function AddAppointmentScreen() {
     const errs: Record<string, string> = {};
     if (!customerName.trim()) errs.customerName = "Müşteri adını giriniz.";
     if (!date.match(/^\d{4}-\d{2}-\d{2}$/)) errs.date = "Geçerli bir tarih giriniz (YYYY-AA-GG).";
-    if (!time.match(/^\d{1,2}:\d{2}$/)) errs.time = "Geçerli bir saat giriniz (SS:DD).";
+    if (!isValidTime(time)) errs.time = "Geçerli bir saat giriniz (örn: 10:30 veya 10.30).";
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -81,7 +92,7 @@ export default function AddAppointmentScreen() {
         customerName: customerName.trim(),
         customerPhone: customerPhone.trim(),
         date,
-        time,
+        time: normalizeTime(time),
         service,
         duration: parseInt(duration) || 60,
         price: parseFloat(price) || 0,
