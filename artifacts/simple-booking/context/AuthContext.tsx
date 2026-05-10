@@ -24,8 +24,8 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-const USERS_KEY = "sb_users";
-const SESSION_KEY = "sb_session";
+const USERS_KEY = "sb_users_v2";
+const SESSION_KEY = "sb_session_v2";
 
 function simpleHash(str: string): string {
   let hash = 0;
@@ -40,14 +40,20 @@ function simpleHash(str: string): string {
 async function getStoredUsers(): Promise<StoredUser[]> {
   try {
     const data = await AsyncStorage.getItem(USERS_KEY);
-    return data ? JSON.parse(data) : [];
+    if (!data) return [];
+    const parsed = JSON.parse(data);
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
   }
 }
 
 async function saveUsers(users: StoredUser[]): Promise<void> {
-  await AsyncStorage.setItem(USERS_KEY, JSON.stringify(users));
+  try {
+    await AsyncStorage.setItem(USERS_KEY, JSON.stringify(users));
+  } catch (e) {
+    throw new Error("Kullanıcı bilgileri kaydedilemedi. Lütfen tekrar deneyin.");
+  }
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -61,19 +67,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function loadSession() {
     try {
       const sessionData = await AsyncStorage.getItem(SESSION_KEY);
-      if (sessionData) {
-        const sessionUser: User = JSON.parse(sessionData);
-        const users = await getStoredUsers();
-        const exists = users.find((u) => u.id === sessionUser.id);
-        if (exists) {
-          const { passwordHash: _, ...userWithoutPassword } = exists;
-          setUser(userWithoutPassword);
-        } else {
-          await AsyncStorage.removeItem(SESSION_KEY);
-        }
+      if (!sessionData) return;
+
+      const sessionUser: User = JSON.parse(sessionData);
+      const users = await getStoredUsers();
+
+      if (users.length === 0) {
+        // Kullanıcı listesi okunamadıysa oturuma güven
+        setUser(sessionUser);
+        return;
+      }
+
+      const exists = users.find((u) => u.id === sessionUser.id);
+      if (exists) {
+        const { passwordHash: _, ...userWithoutPassword } = exists;
+        setUser(userWithoutPassword);
+      } else {
+        // Kullanıcı silindi, oturumu temizle
+        await AsyncStorage.removeItem(SESSION_KEY);
       }
     } catch {
-      // session corrupted
+      // Oturum bozuk, sessizce devam et
     } finally {
       setIsLoading(false);
     }
@@ -99,7 +113,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     const { passwordHash: _, ...userWithoutPassword } = found;
-    await AsyncStorage.setItem(SESSION_KEY, JSON.stringify(userWithoutPassword));
+    try {
+      await AsyncStorage.setItem(SESSION_KEY, JSON.stringify(userWithoutPassword));
+    } catch {
+      return { success: false, error: "Giriş kaydedilemedi. Lütfen tekrar deneyin." };
+    }
     setUser(userWithoutPassword);
     return { success: true };
   }
@@ -128,7 +146,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { success: false, error: "Geçerli bir e-posta adresi giriniz." };
     }
 
-    const users = await getStoredUsers();
+    let users: StoredUser[];
+    try {
+      users = await getStoredUsers();
+    } catch {
+      return { success: false, error: "Sunucuya ulaşılamadı. Lütfen tekrar deneyin." };
+    }
 
     const usernameExists = users.find(
       (u) => u.username.toLowerCase() === username.toLowerCase().trim()
@@ -154,10 +177,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       passwordHash: simpleHash(password),
     };
 
-    await saveUsers([...users, newUser]);
+    // Önce kullanıcıyı kaydet, başarılıysa oturum aç
+    try {
+      await saveUsers([...users, newUser]);
+    } catch (e: any) {
+      return { success: false, error: e?.message ?? "Kayıt başarısız oldu. Lütfen tekrar deneyin." };
+    }
 
     const { passwordHash: _, ...userWithoutPassword } = newUser;
-    await AsyncStorage.setItem(SESSION_KEY, JSON.stringify(userWithoutPassword));
+    try {
+      await AsyncStorage.setItem(SESSION_KEY, JSON.stringify(userWithoutPassword));
+    } catch {
+      // Oturum kaydedilemedi ama kullanıcı oluştu — girişe yönlendir
+      return { success: false, error: "Hesabınız oluşturuldu! Lütfen giriş yapın." };
+    }
+
     setUser(userWithoutPassword);
     return { success: true };
   }

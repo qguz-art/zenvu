@@ -1,5 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import { router } from "expo-router";
 import React from "react";
 import {
   Alert,
@@ -170,7 +171,7 @@ export default function SettingsScreen() {
         <Text style={[styles.sectionLabel, { color: C.textMuted }]}>UYGULAMA</Text>
         <View style={styles.section}>
           <SettingRow icon="info" label="Versiyon" value="1.0.0" />
-          <SettingRow icon="shield" label="Gizlilik Politikası" onPress={() => {}} />
+          <SettingRow icon="shield" label="Gizlilik Politikası" onPress={() => router.push("/privacy-policy")} />
         </View>
 
         <View style={styles.section}>

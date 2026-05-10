@@ -59,6 +59,7 @@ function RootLayoutNav() {
       <Stack.Screen name="add-appointment" options={{ headerShown: false, presentation: "modal" }} />
       <Stack.Screen name="appointment/[id]" options={{ headerShown: false, presentation: "modal" }} />
       <Stack.Screen name="customer/[id]" options={{ headerShown: false, presentation: "modal" }} />
+      <Stack.Screen name="privacy-policy" options={{ headerShown: false }} />
     </Stack>
   );
 }
