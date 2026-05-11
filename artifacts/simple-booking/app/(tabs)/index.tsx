@@ -14,6 +14,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import Colors from "@/constants/colors";
+import { AdBanner } from "@/components/AdBanner";
 import { useAuth } from "@/context/AuthContext";
 import { useData } from "@/context/DataContext";
 import type { Appointment } from "@/context/DataContext";
@@ -220,6 +221,8 @@ export default function DailyScreen() {
             </View>
           )}
         </View>
+
+        <AdBanner />
 
         {/* Appointment list */}
         <View style={styles.sectionHeader}>
