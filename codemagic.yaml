@@ -1,9 +1,14 @@
 workflows:
-expo-ios:
-  name: Expo iOS Build
+  ios-workflow:
+  name: iOS Workflow
 
   environment:
     node: 20
+    xcode: latest
+
+    ios_signing:
+      distribution_type: app_store
+      bundle_identifier: com.simplebooking.app
 
   scripts:
     - name: Install dependencies
@@ -14,9 +19,23 @@ expo-ios:
       script: |
         npm install -g eas-cli
 
-    - name: Generate iOS files
+    - name: Generate iOS project
       script: |
         npx expo prebuild --platform ios
 
+    - name: Install CocoaPods
+      script: |
+        cd ios && pod install
+
+    - name: Build IPA
+      script: |
+        xcode-project build-ipa \
+        --workspace ios/*.xcworkspace \
+        --scheme Runner
+
   artifacts:
-    - ios/**
+    - build/ios/ipa/*.ipa
+
+  publishing:
+    app_store_connect:
+      auth: integration
