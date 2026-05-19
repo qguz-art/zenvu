@@ -1,16 +1,5 @@
 workflows:
-  ios-workflow:
-    name: iOS Workflow
-
-  environment:
-   ios_signing:
-     distribution_type: app_store
-     bundle_identifier: com.simplebooking.app
-
+ ios-workflow:
+  name: iOS Workflow
   scripts:
-    - name: Install dependencies
-      script: npm install
-
-  publishing:
-    app_store_connect:
-      auth: integration
+    - echo "Hello Codemagic"
