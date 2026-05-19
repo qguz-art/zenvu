@@ -1,33 +1,22 @@
 workflows:
-  expo-ios-release:
-    name: Expo iOS Release
+expo-ios:
+  name: Expo iOS Build
 
-    environment:
-      node: 20
-      xcode: latest
+  environment:
+    node: 20
 
-    scripts:
-      - name: Install dependencies
-        script: |
-          npm install
+  scripts:
+    - name: Install dependencies
+      script: |
+        npm install
 
-      - name: Install Expo and EAS
-        script: |
-          npm install -g expo-cli eas-cli
+    - name: Install Expo tools
+      script: |
+        npm install -g eas-cli
 
-      - name: Generate native iOS project
-        script: |
-          npx expo prebuild --platform ios
+    - name: Generate iOS files
+      script: |
+        npx expo prebuild --platform ios
 
-      - name: Install CocoaPods
-        script: |
-          cd ios && pod install
-
-      - name: Build iOS archive
-        script: |
-          xcode-project build-ipa \
-            --workspace ios/*.xcworkspace \
-            --scheme "$(xcode-project detect-bundle-id)"
-
-    artifacts:
-      - build/ios/ipa/*.ipa
+  artifacts:
+    - ios/**
