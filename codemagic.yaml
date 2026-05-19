@@ -9,8 +9,7 @@ workflows:
 
   scripts:
     - name: Install dependencies
-      script: |
-        npm install
+      script: npm install
 
   publishing:
     app_store_connect:
