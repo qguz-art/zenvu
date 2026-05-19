@@ -12,6 +12,6 @@ workflows:
        script: |
          npm install
 
-   publishing:
+    publishing:
      app_store_connect:
                auth: integration
