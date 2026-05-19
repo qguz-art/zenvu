@@ -1,5 +1,33 @@
 workflows:
- ios-workflow:
-  name: iOS Workflow
-  scripts:
-    - echo "Hello Codemagic"
+  expo-ios-release:
+    name: Expo iOS Release
+
+    environment:
+      node: 20
+      xcode: latest
+
+    scripts:
+      - name: Install dependencies
+        script: |
+          npm install
+
+      - name: Install Expo and EAS
+        script: |
+          npm install -g expo-cli eas-cli
+
+      - name: Generate native iOS project
+        script: |
+          npx expo prebuild --platform ios
+
+      - name: Install CocoaPods
+        script: |
+          cd ios && pod install
+
+      - name: Build iOS archive
+        script: |
+          xcode-project build-ipa \
+            --workspace ios/*.xcworkspace \
+            --scheme "$(xcode-project detect-bundle-id)"
+
+    artifacts:
+      - build/ios/ipa/*.ipa
